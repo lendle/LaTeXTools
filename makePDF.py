@@ -248,7 +248,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		os.chdir(tex_dir)
 		if self.tex_ext.upper() == ".RNW":
 				# Run Rscript -e "library(knitr); knit('" + self.file_name + "')"
-				os.system("Rscript -e \"library(knitr); knit('"+ self.file_name +"')\"")
+				os.system("R CMD Sweave "+ self.file_name)
 				self.file_name = self.tex_base + ".tex"
 				self.tex_ext = ".tex"
 		CmdThread(self).start()
