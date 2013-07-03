@@ -19,11 +19,11 @@ DEBUG = False
 # Encoding: especially useful for Windows
 # TODO: counterpart for OSX? Guess encoding of files?
 def getOEMCP():
-    # Windows OEM/Ansi codepage mismatch issue.
-    # We need the OEM cp, because texify and friends are console programs
-    import ctypes
-    codepage = ctypes.windll.kernel32.GetOEMCP()
-    return str(codepage)
+		# Windows OEM/Ansi codepage mismatch issue.
+		# We need the OEM cp, because texify and friends are console programs
+		import ctypes
+		codepage = ctypes.windll.kernel32.GetOEMCP()
+		return str(codepage)
 
 
 
@@ -197,7 +197,7 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			self.output_view = self.window.get_output_panel("exec")
 
 		# Dumb, but required for the moment for the output panel to be picked
-        # up as the result buffer
+				# up as the result buffer
 		self.window.get_output_panel("exec")
 
 		self.output_view.settings().set("result_file_regex", "^([^:\n\r]*):([0-9]+):?([0-9]+)?:? (.*)$")
@@ -229,9 +229,9 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 			print "saving..."
 			view.run_command('save') # call this on view, not self.window
 		
-		if self.tex_ext.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot compile." % (os.path.basename(view.file_name()),))
-			return
+		if (self.tex_ext.upper() != ".TEX") and (self.tex_ext.upper() != ".RNW"):
+				sublime.error_message("%s is not a TeX or Rnw source file: cannot compile." % (os.path.basename(view.file_name()),))
+				return
 		
 		s = platform.system()
 		if s == "Darwin":
@@ -246,6 +246,11 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		print self.make_cmd + [self.file_name]
 		
 		os.chdir(tex_dir)
+		if self.tex_ext.upper() == ".RNW":
+				# Run Rscript -e "library(knitr); knit('" + self.file_name + "')"
+				os.system("Rscript -e \"library(knitr); knit('"+ self.file_name +"')\"")
+				self.file_name = self.tex_base + ".tex"
+				self.tex_ext = ".tex"
 		CmdThread(self).start()
 		print threading.active_count()
 
@@ -258,12 +263,12 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		sublime.set_timeout(functools.partial(self.do_output, data), 0)
 
 	def do_output(self, data):
-        # if proc != self.proc:
-        #     # a second call to exec has been made before the first one
-        #     # finished, ignore it instead of intermingling the output.
-        #     if proc:
-        #         proc.kill()
-        #     return
+				# if proc != self.proc:
+				#     # a second call to exec has been made before the first one
+				#     # finished, ignore it instead of intermingling the output.
+				#     if proc:
+				#         proc.kill()
+				#     return
 
 		# try:
 		#     str = data.decode(self.encoding)
@@ -280,13 +285,13 @@ class make_pdfCommand(sublime_plugin.WindowCommand):
 		str = str.replace('\r\n', '\n').replace('\r', '\n')
 
 		selection_was_at_end = (len(self.output_view.sel()) == 1
-		    and self.output_view.sel()[0]
-		        == sublime.Region(self.output_view.size()))
+				and self.output_view.sel()[0]
+						== sublime.Region(self.output_view.size()))
 		self.output_view.set_read_only(False)
 		edit = self.output_view.begin_edit()
 		self.output_view.insert(edit, self.output_view.size(), str)
 		if selection_was_at_end:
-		    self.output_view.show(self.output_view.size())
+				self.output_view.show(self.output_view.size())
 		self.output_view.end_edit(edit)
 		self.output_view.set_read_only(True)	
 

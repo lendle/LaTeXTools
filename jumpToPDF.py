@@ -27,8 +27,8 @@ class jump_to_pdfCommand(sublime_plugin.TextCommand):
 		print from_keybinding, keep_focus, forward_sync
 
 		texFile, texExt = os.path.splitext(self.view.file_name())
-		if texExt.upper() != ".TEX":
-			sublime.error_message("%s is not a TeX source file: cannot jump." % (os.path.basename(view.fileName()),))
+		if (texExt.upper() != ".TEX") and (texExt.upper() != ".RNW"):
+			sublime.error_message("%s is not a TeX or Rnw source file: cannot jump." % (os.path.basename(view.fileName()),))
 			return
 		quotes = "\""
 		srcfile = texFile + u'.tex'
